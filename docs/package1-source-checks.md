@@ -20,7 +20,7 @@ USGS primary report: https://pubs.usgs.gov/publication/tm11E1
 USGS GIS product release: https://data.usgs.gov/datacatalog/data/USGS:667b1061d34e6151c9d6bcc7  
 Candidate Python library: https://github.com/rbeyer/lgrs
 
-**Status:** The numerical parameters have been reviewed against the published report in the earlier design discussion. The required *direct* `.prj` WKT extraction, zone numbering, 25 km grid origin, and <1 m shapefile comparison **have not yet been performed**. Therefore, `src/grid.py` is a candidate implementation, not an approved cadastral grid. The official central meridian-to-zone index mapping is deliberately left as an explicit input.
+**Status:** The numerical parameters have been reviewed against the published report in the earlier design discussion. The official zone-numbering rule is confirmed from the USGS reference conversion code: LTM zone 1 has central meridian 176°W, zone 23 is 0°, zone 45 is 176°E; the formula is -176° + 8° × (zone - 1). The required *direct* `.prj` WKT extraction, 25 km grid origin, and <1 m shapefile comparison **have not yet been performed**. Therefore, `src/grid.py` is a candidate implementation, not an approved cadastral grid. The zone-number mapping is now implemented in `src/enumerate_grid.py`; the underlying WKT and boundary geometry remain provisional.
 
 Validation needed:
 1. Acquire and SHA-256 the official release archive and all source `.prj` files.
@@ -58,7 +58,7 @@ The label references oxide fields including `W_FEO` and `W_TIO2`; their uncertai
 | PGDA illumination and shadow | [NASA PGDA](https://pgda.gsfc.nasa.gov/products/69) | Not yet cleared | Identify original providers and data use notices |
 | LROC WAC TiO₂ | [ODE](https://ode.rsl.wustl.edu/moon/pagehelp/Content/Missions_Instruments/LRO/LROC/SDR/SDWTIO.htm) | Not yet cleared | Verify applicable LROC and NASA product reuse notices |
 | Lunar Prospector GRS | [PDS](https://pds-geosciences.wustl.edu/lunar/lp-l-grs-5-elem-abundance-v1/lp_9001/data/lpgrs_high1_elem_abundance_2deg.lbl) | Not yet cleared | Verify data archive and third-party reuse requirements |
-| Unified Geologic Map of the Moon | USGS product, version not pinned | Not yet cleared | Pin version, download source, verify attribution/terms |
+| Unified Geologic Map of the Moon | [USGS publication](https://pubs.usgs.gov/publication/sim3316) | Version 2.0 USGS release states CC0/public domain; citation requested | Pin exact GIS download SHA-256; preserve recommended attribution |
 
 **Release gate:** No real-data derivative tiles may be published until this matrix is resolved with exact terms, links and any required attribution.
 
@@ -66,11 +66,11 @@ The label references oxide fields including `W_FEO` and `W_TIO2`; their uncertai
 
 - [x] Deterministic format-1 8,946-byte synthetic tile writer and reader.
 - [x] Merkle index, tree and proof primitives; prototype unit tests.
-- [x] Candidate LTM/LPS square classifier with independent edge-walk test helper.
+- [x] Candidate LTM/LPS square classifier with independent edge-walk test helper.\n- [x] Zone numbering confirmed from the published USGS conversion reference code.\n- [x] Provisional per-zone 25 km tile and 1 km square inventory tool (`python -m src.enumerate_grid`).\n- [x] WKT and PDS3 source-inspection command (`python -m src.inspect_sources`).\n- [x] Preliminary raster summarization, Horn slope, source-hashing and fixed-unit packing helpers (`src/raster_pipeline.py`).
 - [x] GitHub Actions test workflow.
 - [ ] Authoritative WKT/zone-numbering/USGS border verification.
 - [ ] Exhaustive Moon-wide grid and 1 m edge-walk checks.
-- [ ] Product-specific scientific error model and raster ingestion.
+- [ ] Complete product-specific scientific error model and **source-specific production raster ingestion**; generic reduction primitives have been implemented.
 - [ ] Resolved source-specific redistribution conditions.
 - [ ] Versioned real field with full provenance manifest, immutable folders and externally pinned trust anchors.
 - [ ] Cross-language test against actual SDK `vendor/ld-interfaces/tools/ld.py`.
