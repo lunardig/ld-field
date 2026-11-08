@@ -27,12 +27,15 @@ from .grid import (
     LPS_FALSE_ORIGIN, RADIUS_M, LTM_K0,
 )
 
-DATA={
- 'ltm-23-n':('LTM_global_23N_Grid','LGRS_25km_23N_Grid',Zone('ltm','n',0)),
- 'ltm-23-s':('LTM_global_23S_Grid','LGRS_25km_23S_Grid',Zone('ltm','s',0)),
- 'lps-n':('LPS_global_N_Grid','PolarLGRS_25km_N_Grid',Zone('lps','n')),
- 'lps-s':('LPS_global_S_Grid','PolarLGRS_25km_S_Grid',Zone('lps','s')),
-}
+DATA={}
+for _z in range(1,46):
+ for _hemi,_label in (('n','N'),('s','S')):
+  _code=f'{_z}{_label}'
+  DATA[f'ltm-{_z}-{_hemi}']=(f'LTM_global_{_code}_Grid',
+                             f'LGRS_25km_{_code}_Grid',
+                             Zone('ltm',_hemi,-176+8*(_z-1)))
+DATA['lps-n']=('LPS_global_N_Grid','PolarLGRS_25km_N_Grid',Zone('lps','n'))
+DATA['lps-s']=('LPS_global_S_Grid','PolarLGRS_25km_S_Grid',Zone('lps','s'))
 
 def _source_reader(archive, name):
  import shapefile
@@ -57,8 +60,8 @@ def _residual_m(zone, x, y):
             abs(abs(lon)-4)*pi/180*RADIUS_M*max(.00001,cos(lat*pi/180)))
 
 def check(archive_path):
- report={'status':'SAMPLED_ZONES_NOT_GLOBAL_1M_VALIDATION',
-         'limits':['Only LTM zone 23 N/S and polar N/S inspected',
+ report={'status':'ALL_92_ZONES_25KM_BOUNDARY_COMPARISON_NOT_1KM_EDGE_WALK',
+         'limits':['All 90 LTM zones and both polar zones inspected',
                    'USGS LTM reference zone extends to +/-82 degrees; project restricts it to +/-80',
                    'USGS curved edges are discrete sampled polylines, not exact analytic curves',
                    'This does NOT walk every cut 1km cell at 1m intervals'],
