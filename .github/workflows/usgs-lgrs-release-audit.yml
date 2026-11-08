@@ -6,6 +6,7 @@ on:
     paths:
       - 'src/validate_usgs_release.py'
       - 'src/inspect_usgs_geometry.py'
+      - 'src/compare_usgs_grid.py'
       - '.github/workflows/usgs-lgrs-release-audit.yml'
 
 permissions:
@@ -39,6 +40,8 @@ jobs:
           python -m src.inspect_usgs_geometry \
             build/LTM_LPS_LGRS_Shapefiles.zip \
             --output build/usgs-lgrs-grid-geometry.json
+      - name: Compare USGS projected boundaries with rev21 candidate
+        run: python -m src.compare_usgs_grid build/LTM_LPS_LGRS_Shapefiles.zip --output build/usgs-lgrs-candidate-comparison.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -46,5 +49,6 @@ jobs:
           path: |
             build/usgs-lgrs-release-audit.json
             build/usgs-lgrs-grid-geometry.json
+            build/usgs-lgrs-candidate-comparison.json
           if-no-files-found: warn
           retention-days: 90
