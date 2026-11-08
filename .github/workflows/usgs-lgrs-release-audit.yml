@@ -1,0 +1,42 @@
+name: Audit official USGS LGRS release archive
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/validate_usgs_release.py'
+      - '.github/workflows/usgs-lgrs-release-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install coordinate reference reader
+        run: python -m pip install 'pyproj==3.7.2'
+      - name: Fetch preserved source artifact
+        run: |
+          mkdir -p build
+          curl --fail --location --retry 3 --retry-all-errors \
+            --output build/LTM_LPS_LGRS_Shapefiles.zip \
+            'https://github.com/lunardig/ld-field/releases/download/usgs-lgrs-source-2024/LTM_LPS_LGRS_Shapefiles.zip'
+      - name: Verify checksum and inspect official projection WKT
+        run: |
+          python -m src.validate_usgs_release \
+            build/LTM_LPS_LGRS_Shapefiles.zip \
+            --sha256 0ab9a17428a5ac076be301dd027cacb1ad3b6e06878c3768a488f9deda3c7623 \
+            --output build/usgs-lgrs-release-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: usgs-lgrs-projection-evidence
+          path: build/usgs-lgrs-release-audit.json
+          if-no-files-found: warn
+          retention-days: 90
