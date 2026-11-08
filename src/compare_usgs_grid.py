@@ -70,7 +70,7 @@ def check(archive_path):
    vertices=boundaries.shape(0).points
    residuals=[_residual_m(zone,x,y) for x,y in vertices]
    grids,grid_path=_source_reader(archive,grid_name)
-   outside=bad=0;max_box_violation=0;offending=[];candidate_intersections=0
+   outside=bad=duplicates=0;max_box_violation=0;offending=[];candidate_intersections=0;seen=set()
    for record in grids.iterShapeRecords():
     points=record.shape.points
     if not points:continue
@@ -86,6 +86,12 @@ def check(archive_path):
     if worst>1:
      bad+=1
      if len(offending)<10:offending.append([e,n,worst])
+    # USGS geographic latitude-band names can split one projected 25km
+    # square into multiple polygon features. Count distinct (e,n) keys.
+    if (e,n) in seen:
+     duplicates+=1
+     continue
+    seen.add((e,n))
     # Determine if any constituent 1km parcel intersects the rev21 zone.
     intersects=False
     for dx in range(25):
@@ -98,6 +104,8 @@ def check(archive_path):
    report['zones'].append({
     'zone':key,'official_boundary':path,'official_25km_grid':grid_path,
     'official_grid_polygon_count':len(grids),
+    'unique_projected_25km_cells':len(seen),
+    'extra_band_split_features':duplicates,
     'boundary_vertex_count':len(vertices),
     'max_reference_boundary_residual_m':max(residuals),
     'mean_reference_boundary_residual_m':sum(residuals)/len(residuals),
