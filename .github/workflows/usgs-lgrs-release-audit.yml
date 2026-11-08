@@ -36,8 +36,8 @@ jobs:
             --output build/usgs-lgrs-release-audit.json
       - name: Inspect authoritative projected-coordinate grid vertices
         run: |
-          python -m src.inspect_usgs_geometry \\
-            build/LTM_LPS_LGRS_Shapefiles.zip \\
+          python -m src.inspect_usgs_geometry \
+            build/LTM_LPS_LGRS_Shapefiles.zip \
             --output build/usgs-lgrs-grid-geometry.json
       - uses: actions/upload-artifact@v4
         if: always()
