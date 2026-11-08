@@ -56,6 +56,8 @@ def inspect(archive):
          'fraction_grid_aligned':round(on_grid/total,6) if total else None,
          'residual_bins_m':counts.most_common(20)}
     report.append(data)
+   except Exception as exc:
+    report.append({'name':name,'source':path,'error':str(exc)})
  return report
 
 def main():
