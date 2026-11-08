@@ -20,8 +20,7 @@ USGS primary report: https://pubs.usgs.gov/publication/tm11E1
 USGS GIS product release: https://data.usgs.gov/datacatalog/data/USGS:667b1061d34e6151c9d6bcc7  
 Candidate Python library: https://github.com/rbeyer/lgrs
 
-**Status:** The numerical parameters have been reviewed against the published report in the earlier design discussion. The official zone-numbering rule is confirmed from the USGS reference conversion code: LTM zone 1 has central meridian 176°W, zone 23 is 0°, zone 45 is 176°E; the formula is -176° + 8° × (zone - 1). The required *direct* `.prj` WKT extraction, 25 km grid origin, and <1 m shapefile comparison **have not yet been performed**. Therefore, `src/grid.py` is a candidate implementation, not an approved cadastral grid. The zone-number mapping is now implemented in `src/enumerate_grid.py`; the underlying WKT and boundary geometry remain provisional.
-
+**Status (2026-11-08):** The official preserved USGS archive was SHA-256 verified and all 381 `.prj` files parsed (zero errors). All LTM/LPS WKT constants, zone numbering and projected 25 km grid alignments pass an all-92-zone source comparison; 754 distinct 25 km Lunar Dig tiles per LTM zone and 516 per polar zone yield **68,892** tiles total. The official USGS LTM geometry extends to 82° latitude, while Revision 21 intentionally cuts at 80°. Source grid polygons are sometimes split by latitude-band labels and must be deduplicated by projected coordinates. Full methods, measured residuals, limitations, and source artifact: [USGS geometry comparison report](usgs-lgrs-geometry-comparison-rev21.md). **The mandatory 1 m edge walk of all cut 1 km parcels and their global counts has not been performed; cadastral parcel masks remain provisional.**
 Validation needed:
 1. Acquire and SHA-256 the official release archive and all source `.prj` files.
 2. Tabulate WKT projection method, origin, central meridian, false origins, radius, scale factor, hemisphere, zone numbering and cut rules; compare independently with library `lgrs` pinned to 0.4.0.
@@ -68,7 +67,7 @@ The label references oxide fields including `W_FEO` and `W_TIO2`; their uncertai
 - [x] Merkle index, tree and proof primitives; prototype unit tests.
 - [x] Candidate LTM/LPS square classifier with independent edge-walk test helper.\n- [x] Zone numbering confirmed from the published USGS conversion reference code.\n- [x] Provisional per-zone 25 km tile and 1 km square inventory tool (`python -m src.enumerate_grid`).\n- [x] WKT and PDS3 source-inspection command (`python -m src.inspect_sources`).\n- [x] Preliminary raster summarization, Horn slope, source-hashing and fixed-unit packing helpers (`src/raster_pipeline.py`).
 - [x] GitHub Actions test workflow.
-- [ ] Authoritative WKT/zone-numbering/USGS border verification.
+- [x] All 92 official projected-zone WKT constants, numbering, vertex-level zone borders, and 25 km projected grid-key alignment compared to the checksum-pinned USGS archive. See `docs/usgs-lgrs-geometry-comparison-rev21.md`.
 - [ ] Exhaustive Moon-wide grid and 1 m edge-walk checks.
 - [ ] Complete product-specific scientific error model and **source-specific production raster ingestion**; generic reduction primitives have been implemented.
 - [ ] Resolved source-specific redistribution conditions.
