@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'src/validate_usgs_release.py'
+      - 'src/inspect_usgs_geometry.py'
       - '.github/workflows/usgs-lgrs-release-audit.yml'
 
 permissions:
