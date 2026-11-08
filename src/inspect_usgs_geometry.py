@@ -66,6 +66,6 @@ def main():
  args=p.parse_args()
  j={'datasets':inspect(args.archive),'note':'Descriptive source geometry inventory; no 1m approval.'}
  path=pathlib.Path(args.output);path.parent.mkdir(parents=True,exist_ok=True)
- path.write_text(json.dumps(j,indent=2)+'\n')
+ path.write_text(json.dumps(j,indent=2,default=str)+'\n')
  for d in j['datasets']:print(d['name'],d.get('shape_count'),d.get('coordinate_stats',{}).get('fraction_grid_aligned'),d.get('error'))
 if __name__=='__main__':main()
